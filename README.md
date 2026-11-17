@@ -2,12 +2,11 @@
 
 <div align="center">
 
-### Paired visual evidence for sample filtering and token allocation, full-image inference
+# Paired visual evidence for sample filtering and token allocation, full-image inference
 
 <a href="https://huggingface.co/Kaelyn01/VisAlloc-4B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--4B-FFD21E" alt="Hugging Face model VisAlloc-4B"></a>
 <a href="https://huggingface.co/Kaelyn01/VisAlloc-9B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--9B-FFD21E" alt="Hugging Face model VisAlloc-9B"></a>
 <a href="https://huggingface.co/datasets/Kaelyn01/VisAlloc-6K"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E" alt="Hugging Face dataset VisAlloc-6K"></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-6B3FB0" alt="Apache-2.0 code license"></a>
 
 <img src="figures/comparison.png" alt="Figure 1: Conceptual comparison of OPD, Vision-OPD, and VisAlloc" width="100%">
 
