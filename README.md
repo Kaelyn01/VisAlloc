@@ -82,6 +82,7 @@ verl/trainer/config/visalloc.yaml        VisAlloc training configuration
 verl/                                  vendored distributed training runtime
 chat_templates/                        shared non-thinking multimodal template
 figures/                               Figure 1 comparison and Figure 2 method overview, PNG/PDF
+docs/                                  third-party attribution
 tests/                                 data alignment, token weighting, and pipeline checks
 ```
 
@@ -284,6 +285,6 @@ If you use VisAlloc in your research, please cite:
 ## Acknowledgements and License
 
 This implementation builds on [Vision-OPD](https://github.com/VisionOPD/Vision-OPD) and
-[verl](https://github.com/volcengine/verl). Upstream copyright notices are retained. See [NOTICE](NOTICE)
+[verl](https://github.com/volcengine/verl). Upstream copyright notices are retained. See [NOTICE](docs/NOTICE)
 for attribution and [LICENSE](LICENSE) for Apache-2.0 terms. The training data and underlying images retain
 their [component-specific terms](https://huggingface.co/datasets/Kaelyn01/VisAlloc-6K/blob/main/LICENSE.md).
