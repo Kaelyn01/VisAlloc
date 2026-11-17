@@ -1,0 +1,7 @@
+defaults:
+  - vopd
+  - _self_
+
+# Model size, data paths, and method switches are set by run_visalloc.sh.
+trainer:
+  project_name: VisAlloc

@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: Please cite the VisAlloc paper when using this code.
+type: software
+title: 'VisAlloc: Allocating Visual Supervision for On-Policy Self-Distillation'
+authors:
+- family-names: Xu
+  given-names: Haoran
+- family-names: Chen
+  given-names: Tian
+- family-names: Wu
+  given-names: Yuhe
+- family-names: Zhao
+  given-names: Yanbo
+- family-names: Liao
+  given-names: Junchi
+- family-names: Wang
+  given-names: Hongyu
+- family-names: Li
+  given-names: Jiaze
+- family-names: Wang
+  given-names: Wentao
+- family-names: Li
+  given-names: Yanfeng
+- family-names: Qian
+  given-names: Rui
+repository-code: https://github.com/Kaelyn01/VisAlloc
+license: Apache-2.0
+preferred-citation:
+  type: generic
+  title: 'VisAlloc: Allocating Visual Supervision for On-Policy Self-Distillation'
+  authors:
+  - family-names: Xu
+    given-names: Haoran
+  - family-names: Chen
+    given-names: Tian
+  - family-names: Wu
+    given-names: Yuhe
+  - family-names: Zhao
+    given-names: Yanbo
+  - family-names: Liao
+    given-names: Junchi
+  - family-names: Wang
+    given-names: Hongyu
+  - family-names: Li
+    given-names: Jiaze
+  - family-names: Wang
+    given-names: Wentao
+  - family-names: Li
+    given-names: Yanfeng
+  - family-names: Qian
+    given-names: Rui
+  year: 2026
+  url: https://github.com/Kaelyn01/VisAlloc

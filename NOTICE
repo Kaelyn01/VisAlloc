@@ -1,0 +1,23 @@
+VisAlloc
+Copyright 2026 VisAlloc authors
+
+This release includes the VisAlloc training integration developed by Tian Chen
+and collaborators, derived from the Vision-OPD and verl implementations.
+
+Third-party software:
+- Vision-OPD (https://github.com/VisionOPD/Vision-OPD), Apache-2.0.
+  Upstream runtime base: c8a8fdd1f88eef1b5ef4fe6a8d64eb0272917471.
+- verl (https://github.com/volcengine/verl), Apache-2.0.
+  Original copyright notices remain in the corresponding source files.
+
+VisAlloc modifications include paired negative-teacher inputs and scoring,
+token sensitivity and distribution-disagreement admission, frozen token priors,
+inverse-frequency bonus redistribution, and public data/training utilities.
+
+The method and comparison figures are from the VisAlloc paper.
+
+The VisAlloc-6K dataset is derived from Vision-OPD-6K:
+https://huggingface.co/datasets/Kaelyn01/VisAlloc-6K
+https://huggingface.co/datasets/yuanqianhao/Vision-OPD-6K
+The data and photographs retain their separate upstream terms. This code license
+does not grant additional rights to the underlying images.
