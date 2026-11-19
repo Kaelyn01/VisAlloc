@@ -2,11 +2,13 @@
 
 <div align="center">
 
-### Paired visual evidence for sample filtering and token allocation, full-image inference
+<p>Paired visual evidence for on-policy self-distillation, with full-image inference.</p>
 
-<a href="https://huggingface.co/Kaelyn01/VisAlloc-4B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--4B-FFD21E" alt="Hugging Face model VisAlloc-4B"></a>
-<a href="https://huggingface.co/Kaelyn01/VisAlloc-9B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--9B-FFD21E" alt="Hugging Face model VisAlloc-9B"></a>
-<a href="https://huggingface.co/datasets/Kaelyn01/VisAlloc-6K"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E" alt="Hugging Face dataset VisAlloc-6K"></a>
+<p>
+  <a href="https://huggingface.co/Kaelyn01/VisAlloc-4B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--4B-FFD21E" alt="Hugging Face model VisAlloc-4B"></a>
+  <a href="https://huggingface.co/Kaelyn01/VisAlloc-9B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--9B-FFD21E" alt="Hugging Face model VisAlloc-9B"></a>
+  <a href="https://huggingface.co/datasets/Kaelyn01/VisAlloc-6K"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E" alt="Hugging Face dataset VisAlloc-6K"></a>
+</p>
 
 <img src="figures/comparison.png" alt="Figure 1: Conceptual comparison of OPD, Vision-OPD, and VisAlloc" width="100%">
 
@@ -14,22 +16,34 @@
 
 </div>
 
+[Models & Inference](#released-models-and-inference) · [Method](#method) · [Repository Layout](#repository-layout) · [Installation](#installation) · [Dataset](#dataset) · [Training](#training) · [Evaluation](#evaluation) · [Citation](#citation)
+
 ## Overview
 
-VisAlloc trains a full-image student with privileged visual evidence available during training. It first selects
-samples that distinguish an evidence-centered positive crop from a spatially displaced negative crop, then uses
-the paired views to allocate supervision on student-generated responses. The repository implements the paper's
-paired-view training process:
+VisAlloc allocates visual supervision for on-policy self-distillation. A full-image student learns from a
+positive, evidence-centered crop, while a spatially displaced negative crop helps select training samples
+and construct token weights. Paired views are used only during training; inference uses the full image.
+The released 4B and 9B models share a retained training subset of 5,795 examples from 6,241 candidate pairs.
 
-- **Sample-level signal filtering**: a fixed paired-teacher filter retains samples answered correctly from the
-  positive crop and incorrectly from the negative crop, after annotation-quality checks. Each retained sample
-  keeps its full image and both teacher views.
-- **Token-level signal enhancement**: realized-token view sensitivity supplies a continuous base weight.
-  Sensitivity or teacher-distribution disagreement admits additional weight under shared context gates, and
-  inverse-frequency redistribution preserves its total before mean normalization.
-- **Positive-target distillation**: the positive teacher supplies the weighted JSD target. The negative view
-  contributes to weight construction, and the detached EMA teacher updates after the actor update. Inference
-  uses only the full-image student.
+## Released Models and Inference
+
+| Model | Backbone | Format |
+| --- | --- | --- |
+| [VisAlloc-4B](https://huggingface.co/Kaelyn01/VisAlloc-4B) | Qwen3.5-4B | BF16 safetensors |
+| [VisAlloc-9B](https://huggingface.co/Kaelyn01/VisAlloc-9B) | Qwen3.5-9B | BF16 safetensors |
+
+After [installation](#installation), serve a released model through vLLM's OpenAI-compatible API:
+
+```bash
+vllm serve Kaelyn01/VisAlloc-4B \
+  --served-model-name VisAlloc-4B \
+  --tensor-parallel-size 1 \
+  --gpu-memory-utilization 0.85 \
+  --port 8000
+```
+
+For the larger model, use `Kaelyn01/VisAlloc-9B` with `--served-model-name VisAlloc-9B`. Full `transformers`
+loading examples are available on the corresponding Hugging Face model cards. Inference uses the full image.
 
 ## Method
 
@@ -67,25 +81,44 @@ Packing and parallelism are therefore part of the effective training configurati
 ## Repository Layout
 
 ```text
-scripts/prepare_data.py                 import the published training subset and align all three views
-scripts/build_candidate_views.py        reconstruct crop geometry and generate candidate negative views
-scripts/prepare_priors.py               frozen response priors and template-bigram statistics
-scripts/build_freq_table.py             backbone-specific generated-token frequency counts
-scripts/validate_priors.py              validate model, tokenizer, template, and data identities
-scripts/run_visalloc.sh                 4B/9B training launcher
-scripts/merge_checkpoint.sh             export FSDP actor checkpoints to Hugging Face format
-eval/                                  benchmark preparation, inference, judging, and metrics
-verl/workers/actor/dp_actor.py           paired teacher scoring and weighted distillation
-verl/workers/actor/visalloc_utils.py     token divergence, weighting, and frequency redistribution
-verl/trainer/config/visalloc.yaml        VisAlloc training configuration
-verl/                                  vendored distributed training runtime
-chat_templates/                        shared non-thinking multimodal template
-figures/                               Figure 1 comparison and Figure 2 method overview, PNG/PDF
-docs/                                  third-party attribution
-tests/                                 data alignment, token weighting, and pipeline checks
+VisAlloc/
+├── scripts/                        # Data preparation and training
+│   ├── prepare_data.py             # Import the released training subset
+│   ├── build_candidate_views.py    # Construct candidate crop pairs
+│   ├── prepare_priors.py           # Build frozen response priors
+│   ├── build_freq_table.py         # Count generated token types
+│   ├── validate_priors.py          # Validate artifact identities
+│   ├── resolve_model.py            # Resolve pinned model snapshots
+│   ├── run_visalloc.sh             # Launch 4B or 9B training
+│   └── merge_checkpoint.sh         # Export Hugging Face checkpoints
+├── eval/                           # Benchmark evaluation
+│   ├── prepare_data.py             # Prepare benchmark inputs
+│   ├── infer.py                    # Generate model answers
+│   ├── judge_qwenlm.py             # Judge generated answers
+│   ├── cal_acc.py                  # Calculate benchmark accuracy
+│   └── run_eval.sh                 # Run the evaluation pipeline
+├── verl/                           # Vendored runtime; selected files shown
+│   ├── workers/actor/
+│   │   ├── dp_actor.py             # Teacher scoring and distillation
+│   │   └── visalloc_utils.py       # Token weighting and redistribution
+│   └── trainer/config/
+│       └── visalloc.yaml           # VisAlloc training configuration
+├── chat_templates/                 # Shared non-thinking chat template
+├── figures/                        # Paper figures in PNG and PDF
+├── docs/                           # Third-party attribution
+├── tests/                          # Data, weighting, and pipeline checks
+├── requirements.txt                # Reproduction dependencies
+├── pyproject.toml                  # Package metadata
+└── LICENSE                         # Apache-2.0 code license
 ```
 
-## Requirements
+The main entry points are the [training launcher](scripts/run_visalloc.sh) and
+[evaluation pipeline](eval/run_eval.sh). The VisAlloc actor integration is in
+[dp_actor.py](verl/workers/actor/dp_actor.py) and [visalloc_utils.py](verl/workers/actor/visalloc_utils.py).
+
+## Installation
+
+### Environment
 
 - Linux, Python 3.12, and CUDA 12.8.
 - Four GPUs per node for the default training configuration.
@@ -96,7 +129,7 @@ tests/                                 data alignment, token weighting, and pipe
 The runtime is vendored from Vision-OPD/verl, with the VisAlloc actor integration used by the training project.
 The 4B and 9B models use Qwen3.5-4B and Qwen3.5-9B, respectively.
 
-## Installation
+### Setup
 
 ```bash
 git clone https://github.com/Kaelyn01/VisAlloc.git
@@ -111,6 +144,8 @@ python -m pip install -e . --no-deps
 python -m pip install flash-attn==2.8.3.post1 --no-build-isolation
 python -m pip install causal-conv1d==1.6.1 --no-build-isolation
 ```
+
+### Verify the installation
 
 Run the CPU regression suite in the configured environment:
 
@@ -146,7 +181,10 @@ candidate pool from original photographs.
 
 ## Training
 
-### Frozen priors and frequency counts
+Import the [dataset](#dataset), prepare backbone-specific priors and token counts, launch training,
+and export the actor checkpoint. The commands below use the pinned 4B and 9B model revisions.
+
+### Prepare 4B artifacts
 
 Generate the frozen artifacts separately for each backbone from its own greedy, full-image responses:
 
@@ -201,15 +239,19 @@ directory can be used in place of a Hugging Face ID. `DATA_DIR` and `WORK_DIR` o
 directories. Additional Hydra overrides are passed through, for example `trainer.total_training_steps=2`
 for a short training smoke run.
 
-Settings of the released training launcher:
+### Training configuration
+
+Settings of the [released training launcher](scripts/run_visalloc.sh):
 
 | Setting | 4B | 9B |
 | --- | --- | --- |
 | Base model | Qwen3.5-4B | Qwen3.5-9B |
 | Retained training examples | 5,795 | 5,795 |
-| Prompts / rollouts per prompt | 96 / 8 | 96 / 8 |
+| Prompts per training batch | 96 | 96 |
+| Rollouts per prompt | 8 | 8 |
 | Training response cap | 1,024 | 1,024 |
-| Learning rate / warmup steps | 2e-6 / 10 | 2e-6 / 10 |
+| Learning rate | 2e-6 | 2e-6 |
+| Warmup steps | 10 | 10 |
 | Actor update budget | 60 steps | 60 steps |
 | EMA rate | 0.05 | 0.05 |
 | Additional-weight strength | 4.0 | 2.0 |
@@ -229,29 +271,10 @@ bash scripts/merge_checkpoint.sh \
 The merger exports FSDP actor shards to a standard Hugging Face model directory and includes the training
 chat template.
 
-## Released Models and Inference
-
-| Model | Backbone | Format |
-| --- | --- | --- |
-| [VisAlloc-4B](https://huggingface.co/Kaelyn01/VisAlloc-4B) | Qwen3.5-4B | BF16 safetensors |
-| [VisAlloc-9B](https://huggingface.co/Kaelyn01/VisAlloc-9B) | Qwen3.5-9B | BF16 safetensors |
-
-Serve a released model through vLLM's OpenAI-compatible API:
-
-```bash
-vllm serve Kaelyn01/VisAlloc-4B \
-  --served-model-name VisAlloc-4B \
-  --tensor-parallel-size 1 \
-  --gpu-memory-utilization 0.85 \
-  --port 8000
-```
-
-For the larger model, use `Kaelyn01/VisAlloc-9B` with `--served-model-name VisAlloc-9B`. Full `transformers`
-loading examples are available on the corresponding Hugging Face model cards. Inference uses the full image.
-
 ## Evaluation
 
-Start an OpenAI-compatible judge endpoint, then run:
+Keep the [model server](#released-models-and-inference) running and start a separate OpenAI-compatible
+judge endpoint, then run:
 
 ```bash
 API_BASE=http://localhost:8000/v1/ \
@@ -267,6 +290,10 @@ disabled thinking, and a 32,768-token generation cap. Additional supported tasks
 EN/CN/Lite and VisualProbe. The pipeline prepares benchmark inputs, generates answers, applies rule-based
 matching followed by an LLM judge, and calculates accuracy. Failed inference or judge requests stop scoring
 so that API failures do not become incorrect predictions.
+
+By default, predictions are saved under `eval/model_answer/<benchmark>/` and judged answers under
+`eval/judge/<benchmark>/`. Set `OUT_DIR` to change the prediction directory; relative paths are resolved
+from `eval/`. Accuracy is printed after each benchmark.
 
 ## Citation
 
