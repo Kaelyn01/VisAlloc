@@ -5,6 +5,7 @@
 <p>Paired visual evidence for on-policy self-distillation, with full-image inference.</p>
 
 <p>
+  <a href="https://arxiv.org/abs/2611.25069"><img src="https://img.shields.io/badge/arXiv-2611.25069-b31b1b" alt="VisAlloc paper on arXiv"></a>
   <a href="https://huggingface.co/Kaelyn01/VisAlloc-4B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--4B-FFD21E" alt="Hugging Face model VisAlloc-4B"></a>
   <a href="https://huggingface.co/Kaelyn01/VisAlloc-9B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VisAlloc--9B-FFD21E" alt="Hugging Face model VisAlloc-9B"></a>
   <a href="https://huggingface.co/datasets/Kaelyn01/VisAlloc-6K"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E" alt="Hugging Face dataset VisAlloc-6K"></a>
@@ -304,7 +305,9 @@ If you use VisAlloc in your research, please cite:
   title = {{VisAlloc}: Allocating Visual Supervision for On-Policy Self-Distillation},
   author = {Xu, Haoran and Chen, Tian and Wu, Yuhe and Zhao, Yanbo and Liao, Junchi and Wang, Hongyu and Li, Jiaze and Wang, Wentao and Li, Yanfeng and Qian, Rui},
   year = {2026},
-  url = {https://github.com/Kaelyn01/VisAlloc}
+  eprint = {2611.25069},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2611.25069}
 }
 ```
 
